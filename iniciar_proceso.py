@@ -15,35 +15,21 @@ manejador_db.inicializar()
 
 generando = True
 enviando = True
-generaciones_pendientes = manejador_db.restantes('generado')
-envios_pendientes = manejador_db.restantes('enviado')
 
 while generando or enviando:
 
-    if generando:
-        if generaciones_pendientes != 0:
-            os.system('/usr/local/bin/python3.9 /srv/www/vhosts/autoreportes/generar_reportes.py')
-        else:
-            generando = False
-            logging.info("Generacion de reportes finalizada.")
-
-    if enviando:
-        if envios_pendientes != 0:
-            os.system('/usr/local/bin/python3.9 /srv/www/vhosts/autoreportes/mandar_mails.py')
-        else:
-            enviando = False
-            logging.info("Envio de mails finalizado.")
-    
-    generaciones_pendientes = manejador_db.restantes('generado')
-    envios_pendientes = manejador_db.restantes('enviado')
-    
-    if generaciones_pendientes == 0:
+    if manejador_db.restantes('generado').cantidad > 0:
+        os.system('/usr/local/bin/python3.9 /srv/www/vhosts/autoreportes_test/generar_reportes.py')
+    else:
         generando = False
+        logging.info("Generacion de reportes finalizada.")
 
-    if envios_pendientes == 0:
+    if manejador_db.restantes('enviado').cantidad > 0:
+        os.system('/usr/local/bin/python3.9 /srv/www/vhosts/autoreportes_test/mandar_mails.py')
+    else:
         enviando = False
-
-    if generando or enviando:
-        time.sleep(600)
+        logging.info("Envio de mails finalizado.")
+    
+    time.sleep(1)
 
 logging.info("FIN DE PROCESO.")
